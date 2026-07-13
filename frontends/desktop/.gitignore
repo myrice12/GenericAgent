@@ -4,5 +4,6 @@ src-tauri/gen/
 
 # Node
 node_modules/
-package-lock.json
+# Ignore only desktop-root lockfile (legacy); track web/package-lock.json
+/package-lock.json
 web/dist/
