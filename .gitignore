@@ -156,3 +156,6 @@ frontends/conductor_im_plugins/*
 
 # Brainstorming prototypes
 .superpowers/
+
+# Git worktrees
+.worktrees/
