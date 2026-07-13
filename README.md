@@ -143,7 +143,9 @@ Then launch:
 
 ```bash
 python frontends/tui_v3.py   # Terminal UI (recommended)
-python launch.pyw            # Streamlit web UI
+# Desktop (Tauri + React; needs Rust/Tauri toolchain) — see frontends/desktop/README.md
+#   cd frontends/desktop && npm install && npm install --prefix web && npm run tauri:dev
+python launch.pyw            # Streamlit web UI (fallback)
 ```
 
 #### Method 2 — One-line installer *(convenience)*
@@ -190,7 +192,20 @@ TUI rendering on Windows can be flaky depending on terminal + font. Common cause
 
 </details>
 
-#### Streamlit UI
+#### Desktop (Tauri + React)
+
+Default for developers (requires Rust / Tauri toolchain). Bridge is started by Tauri on `:14168` (API only):
+
+```bash
+cd frontends/desktop
+npm install
+npm install --prefix web
+npm run tauri:dev
+```
+
+See [`frontends/desktop/README.md`](frontends/desktop/README.md).
+
+#### Streamlit UI *(fallback)*
 
 ```bash
 python launch.pyw
@@ -562,11 +577,24 @@ python launch.pyw
 
 #### 桌面端
 
+**默认入口（Tauri + React，开发者）** — 需本机已安装 [Rust](https://www.rust-lang.org/tools/install) 与 Tauri 工具链。Bridge 由 Tauri 自动拉起（`127.0.0.1:14168`，仅作 API，不再承载静态页）：
+
+```bash
+cd frontends/desktop
+npm install
+npm install --prefix web
+npm run tauri:dev
+```
+
+更多说明见 [`frontends/desktop/README.md`](frontends/desktop/README.md)。
+
 一键安装自带桌面端（Windows），双击：
 
 ```text
 frontends/GenericAgent.exe
 ```
+
+**备用**：Streamlit Web UI — `python launch.pyw`
 
 #### 终端 UI
 
@@ -586,7 +614,7 @@ python frontends/tuiapp_v2.py
 
 </details>
 
-#### Streamlit UI
+#### Streamlit UI（备用）
 
 ```bash
 python launch.pyw
