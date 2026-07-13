@@ -667,10 +667,12 @@ fn spawn_bridge_process(python_path: &str, project_dir: &str) -> Result<(), Stri
     Ok(())
 }
 
-fn show_bridge_window(app_handle: &tauri::AppHandle) {
+/// Show the embedded React frontend (Vite dist / devUrl). Bridge stays API-only on :14168 —
+/// do NOT navigate the webview to the bridge static HTTP page.
+fn show_main_frontend(app_handle: &tauri::AppHandle) {
     if let Some(main_win) = app_handle.get_webview_window("main") {
-        let url = tauri::Url::parse("http://127.0.0.1:14168/").unwrap();
-        let _ = main_win.navigate(url);
+        // loading.html → app root (index.html / Vite `/`); same origin as frontendDist/devUrl.
+        let _ = main_win.eval("window.location.replace('/')");
         let _ = main_win.show();
         let _ = main_win.set_focus();
     }
@@ -691,7 +693,7 @@ fn start_bridge_with_config(app_handle: tauri::AppHandle, python_path: String, p
         return Err("Bridge did not become ready within 20s".into());
     }
 
-    show_bridge_window(&app_handle);
+    show_main_frontend(&app_handle);
     Ok(())
 }
 
@@ -702,7 +704,7 @@ fn start_bridge(app_handle: tauri::AppHandle) -> Result<(), String> {
     if !wait_for_port(14168, Duration::from_secs(20)) {
         return Err("Bridge did not become ready within 20s".into());
     }
-    show_bridge_window(&app_handle);
+    show_main_frontend(&app_handle);
     Ok(())
 }
 
@@ -833,7 +835,7 @@ pub fn run() {
                     // NOT probe their ports here: that would self-detect the bridge's own
                     // just-started extras and falsely report "ports busy".
                     if !wait_for_port(14168, Duration::from_secs(15)) {
-                        eprintln!("[tauri] bridge not reachable before navigate");
+                        eprintln!("[tauri] bridge not reachable before showing UI");
                         if let Some(w) = &main_win {
                             let msg = "无法连接 bridge (127.0.0.1:14168)，请关闭程序后重试。";
                             let js = format!(
@@ -844,11 +846,10 @@ pub fn run() {
                         }
                         return;
                     }
-                    // Navigate to the bridge HTTP only after it is ready.
+                    // Bridge is API-only: load embedded React (frontendDist/devUrl), not :14168 static.
                     if let Some(w) = handle.get_webview_window("main") {
-                        if let Ok(url) = tauri::Url::parse("http://127.0.0.1:14168/") {
-                            let _ = w.navigate(url);
-                        }
+                        // was: navigate("http://127.0.0.1:14168/")
+                        let _ = w.eval("window.location.replace('/')");
                         if dev_mode {
                             w.open_devtools();
                         } else {
@@ -871,7 +872,7 @@ pub fn run() {
                     }
                     if let Some(sw) = handle.get_webview_window("setup") { let _ = sw.hide(); }
                     // App is up and reachable: ask-once / self-heal the desktop shortcut.
-                    // Runs last so it never blocks the loading/navigation path.
+                    // Runs last so it never blocks the loading path.
                     maybe_setup_shortcut();
                 } else {
                     // Bridge never came up -> let the user fix paths in the setup window.

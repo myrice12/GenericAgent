@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "identifier": "com.genericagent.app",
   "build": {
-    "frontendDist": "../static"
+    "frontendDist": "../web/dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev --prefix web",
+    "beforeBuildCommand": "npm run build --prefix web"
   },
   "app": {
     "withGlobalTauri": true,
