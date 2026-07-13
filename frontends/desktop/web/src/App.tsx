@@ -3,6 +3,7 @@ import { Shell, type Page } from './layout/Shell';
 import { ChatPage } from './pages/ChatPage';
 import { CollabPage } from './pages/CollabPage';
 import { ServicesPage } from './pages/ServicesPage';
+import { TokenPage } from './pages/TokenPage';
 
 export default function App() {
   const [page, setPage] = useState<Page>('chat');
@@ -20,7 +21,7 @@ export default function App() {
       {page === 'chat' && <ChatPage setRail={setRail} />}
       {page === 'collab' && <CollabPage />}
       {page === 'services' && <ServicesPage />}
-      {page === 'token' && <div>用量占位</div>}
+      {page === 'token' && <TokenPage />}
     </Shell>
   );
 }

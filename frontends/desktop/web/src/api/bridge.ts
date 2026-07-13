@@ -83,3 +83,8 @@ export function tokenStats(query?: Record<string, string | number | boolean | un
 export function tokenHistory(query?: Record<string, string | number | boolean | undefined | null>) {
   return httpJson(withQuery('/token-history', query));
 }
+
+/** POST /token-history — persist usage deltas + conductor totals */
+export function postTokenHistory(body: Record<string, unknown>) {
+  return call('/token-history', { method: 'POST', body });
+}
