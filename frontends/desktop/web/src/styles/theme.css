@@ -1,0 +1,19 @@
+:root {
+  --bg: #0f1419;
+  --panel: #12181f;
+  --line: #2a3340;
+  --txt: #e8eef5;
+  --muted: #7a8a9a;
+  --accent: #3d9cf0;
+  --accent-soft: #1a2430;
+  --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--txt);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
