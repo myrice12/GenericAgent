@@ -60,14 +60,19 @@ export function normalizeMessage(raw: unknown): ChatMessage | null {
   return out;
 }
 
+/** Mirror app.js: completed → join all turn_segs; streaming partial → curr_turn only. */
 export function messageText(m: ChatMessage): string {
   if (typeof m.display === 'string' && m.display.length) return m.display;
   if (Array.isArray(m.turn_segs) && m.turn_segs.length) {
-    const i =
-      typeof m.curr_turn === 'number'
-        ? m.curr_turn
-        : Math.max(0, m.turn_segs.length - 1);
-    return m.turn_segs[i] ?? m.turn_segs[m.turn_segs.length - 1] ?? m.content;
+    if (m.partial) {
+      const i =
+        typeof m.curr_turn === 'number'
+          ? m.curr_turn
+          : Math.max(0, m.turn_segs.length - 1);
+      return m.turn_segs[i] ?? m.turn_segs[m.turn_segs.length - 1] ?? m.content;
+    }
+    // assistantStructuredText: join full segments for finalized messages
+    return m.turn_segs.join('\n');
   }
   return m.content;
 }

@@ -96,10 +96,14 @@ describe('applyPollResult', () => {
 });
 
 describe('messageText', () => {
-  it('prefers display for user, turn_segs for assistant', () => {
+  it('prefers display for user', () => {
     expect(
       messageText({ id: 1, role: 'user', content: 'raw', display: 'shown' }),
     ).toBe('shown');
+  });
+
+  it('joins all turn_segs for completed assistant messages', () => {
+    // mirrors app.js assistantStructuredText
     expect(
       messageText({
         id: 2,
@@ -108,6 +112,19 @@ describe('messageText', () => {
         turn_segs: ['seg0', 'seg1'],
         curr_turn: 1,
       }),
-    ).toBe('seg1');
+    ).toBe('seg0\nseg1');
+  });
+
+  it('uses curr_turn segment only while streaming partial', () => {
+    expect(
+      messageText({
+        id: 3,
+        role: 'assistant',
+        content: '',
+        partial: true,
+        turn_segs: ['seg0', 'seg1…'],
+        curr_turn: 1,
+      }),
+    ).toBe('seg1…');
   });
 });
