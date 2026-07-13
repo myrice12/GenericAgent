@@ -3,10 +3,11 @@ import { t } from '../i18n';
 
 type ComposerProps = {
   disabled?: boolean;
+  placeholder?: string;
   onSend: (text: string) => void | Promise<void>;
 };
 
-export function Composer({ disabled, onSend }: ComposerProps) {
+export function Composer({ disabled, placeholder, onSend }: ComposerProps) {
   const [value, setValue] = useState('');
 
   const submit = useCallback(async () => {
@@ -30,7 +31,7 @@ export function Composer({ disabled, onSend }: ComposerProps) {
         rows={3}
         value={value}
         disabled={disabled}
-        placeholder={t('chat.placeholder')}
+        placeholder={placeholder ?? t('chat.placeholder')}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={onKeyDown}
       />

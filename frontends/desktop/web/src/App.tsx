@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Shell, type Page } from './layout/Shell';
 import { ChatPage } from './pages/ChatPage';
+import { CollabPage } from './pages/CollabPage';
 
 export default function App() {
   const [page, setPage] = useState<Page>('chat');
@@ -16,7 +17,7 @@ export default function App() {
       rail={page === 'chat' ? rail : undefined}
     >
       {page === 'chat' && <ChatPage setRail={setRail} />}
-      {page === 'collab' && <div>指挥家占位</div>}
+      {page === 'collab' && <CollabPage />}
       {page === 'services' && <div>服务占位</div>}
       {page === 'token' && <div>用量占位</div>}
     </Shell>
