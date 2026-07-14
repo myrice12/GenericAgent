@@ -7,6 +7,7 @@ elif hasattr(sys.stderr, 'reconfigure'): sys.stderr.reconfigure(errors='replace'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from llmcore import reload_mykeys, ToolClient, MixinSession, NativeToolClient, NativeClaudeSession, NativeOAISession, resolve_client
+from config_utils import has_active_mixin
 from agent_loop import agent_runner_loop
 try:
     from plugins.hooks import discover_and_load; discover_and_load()
@@ -74,7 +75,7 @@ class GenericAgent:
         for k, cfg in mykeys.items():
             if not any(x in k for x in ['api', 'config', 'cookie']): continue
             try:
-                if 'mixin' in k: llm_sessions += [{'mixin_cfg': cfg}]
+                if 'mixin' in k and has_active_mixin(cfg): llm_sessions += [{'mixin_cfg': cfg}]
                 elif c := resolve_client(k): llm_sessions += [c]
             except: pass
         for i, s in enumerate(llm_sessions):
@@ -85,11 +86,16 @@ class GenericAgent:
                     else: llm_sessions[i] = ToolClient(mixin)
                 except Exception as e: print(f'\n\n\n[ERROR] Failed to init MixinSession with cfg {s["mixin_cfg"]}: {e}!!!\n\n')
         self.llmclients = llm_sessions
+        if not self.llmclients:
+            self.llmclient = None
+            return
         self.llmclient = self.llmclients[self.llm_no%len(self.llmclients)]
         if oldhistory: self.llmclient.backend.history = oldhistory
     
     def next_llm(self, n=-1):
         self.load_llm_sessions()
+        if not self.llmclients:
+            raise RuntimeError('尚未配置可用模型，请先在 mykey.py 或桌面端设置中添加模型')
         self.llm_no = ((self.llm_no + 1) if n < 0 else n) % len(self.llmclients)
         lastc = self.llmclient
         self.llmclient = self.llmclients[self.llm_no]
@@ -104,6 +110,8 @@ class GenericAgent:
         return [(i, self.get_llm_name(b), i == self.llm_no) for i, b in enumerate(self.llmclients)]
     def get_llm_name(self, b=None, model=False):
         b = self.llmclient if b is None else b
+        if b is None:
+            return '未配置模型'
         if isinstance(b, dict): return 'BADCONFIG_MIXIN'
         if model: return b.backend.model.lower()
         return f"{type(b.backend).__name__}/{b.backend.name}"

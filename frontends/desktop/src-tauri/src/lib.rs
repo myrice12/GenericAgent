@@ -83,6 +83,19 @@ fn find_python() -> String {
     if let Some(p) = bundle_python() {
         return p.to_string_lossy().to_string();
     }
+    // Source checkout: prefer the repository's uv-managed virtualenv over the
+    // system interpreter. This keeps dev launches on the supported Python
+    // version and makes installed UI dependencies visible to the Bridge.
+    if let Some(project) = find_project_dir() {
+        let venv = PathBuf::from(project).join(".venv");
+        #[cfg(windows)]
+        let p = venv.join("Scripts").join("python.exe");
+        #[cfg(not(windows))]
+        let p = venv.join("bin").join("python");
+        if p.exists() {
+            return p.to_string_lossy().to_string();
+        }
+    }
     let root = project_root();
     let portable_python_dir = root.join(".portable").join("uv-python");
 

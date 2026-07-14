@@ -64,6 +64,38 @@ export function listModelProfiles() {
   return call('/model-profiles');
 }
 
+export function getModelProfile(id: number) {
+  return call(`/model-profiles/${id}`);
+}
+
+export function addModelProfile(body: Record<string, unknown>) {
+  return call('/model-profiles', { method: 'POST', body });
+}
+
+export function updateModelProfile(id: number, body: Record<string, unknown>) {
+  return call(`/model-profiles/${id}`, { method: 'PUT', body });
+}
+
+export function deleteModelProfile(id: number) {
+  return call(`/model-profiles/${id}`, { method: 'DELETE', body: {} });
+}
+
+export function addToMixin(id: number) {
+  return call(`/model-profiles/${id}/mixin`, { method: 'POST', body: {} });
+}
+
+export function removeFromMixin(id: number) {
+  return call(`/model-profiles/${id}/mixin`, { method: 'DELETE', body: {} });
+}
+
+export function getMykey() {
+  return call<{ content?: string; path?: string }>('/services/mykey');
+}
+
+export function saveMykey(content: string) {
+  return call('/services/mykey', { method: 'POST', body: { content } });
+}
+
 export function servicesPanel() {
   return call('/services/panel');
 }

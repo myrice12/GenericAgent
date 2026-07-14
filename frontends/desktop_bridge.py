@@ -42,9 +42,13 @@ import threading, time, traceback, uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
-from aiohttp import web, WSMsgType
-
 APP_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = APP_DIR.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from aiohttp import web, WSMsgType
+from config_utils import has_model_config
 
 
 def find_default_ga_root() -> Path:
@@ -1088,6 +1092,9 @@ class ServiceManager:
           - reflect/scheduler.py (drives L4 archive cron every 12h).
         IM services stay manual (need explicit mykey.py config + user opt-in)."""
         for sid in sorted(set(self._catalog) - set(self._im_catalog)):
+            if sid == "reflect/scheduler.py" and not has_model_config(_load_mykeys(self.ga_root)):
+                print(f"[autostart] {sid}: skipped: no model configured", file=sys.stderr)
+                continue
             try:
                 res = self.start_service(sid)
                 tag = "ok" if res.get("ok") else f"fail: {res.get('error')}"
